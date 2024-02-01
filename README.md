@@ -5,10 +5,16 @@ Pequeña introducción a conceptos básicos de TypeScript si no sabes conceptos 
 - [Índice](#índice)
 - [Qué es TypeScript](#qué-es-typescript)
   - [Características principales](#características-principales)
+  - [Inferencia de datos](#inferencia-de-datos)
+    - [Beneficios de la inferencia de tipos](#beneficios-de-la-inferencia-de-tipos)
 - [Tipos de datos primitivos](#tipos-de-datos-primitivos)
   - [Valores primitivos](#valores-primitivos)
 - [Estructuras de datos](#estructuras-de-datos)
   - [Objetos](#objetos)
+  - [Declaración de tipos con `interface` y `type`](#declaración-de-tipos-con-interface-y-type)
+    - [`type`](#type)
+    - [`interface`](#interface)
+    - [Consideraciones para elegir entre `type` e `interface`](#consideraciones-para-elegir-entre-type-e-interface)
   - [Arrays y Tuplas](#arrays-y-tuplas)
     - [Arrays](#arrays)
       - [Método `Array.map`](#método-arraymap)
@@ -16,7 +22,7 @@ Pequeña introducción a conceptos básicos de TypeScript si no sabes conceptos 
       - [Método `Array.reduce`](#método-arrayreduce)
     - [Tuplas](#tuplas)
 - [Funciones](#funciones)
-  - [Tipos de funciones](#tipos-de-funciones)
+  - [Tipar funciones](#tipar-funciones)
   - [Declaración de funciones](#declaración-de-funciones)
   - [Funciones como Tipos](#funciones-como-tipos)
   - [Funciones opcionales y por defecto](#funciones-opcionales-y-por-defecto)
@@ -43,8 +49,53 @@ TypeScript agrega un sistema de tipos estático opcional que permite declarar ti
 TypeScript es un superconjunto de JavaScript, lo que significa que todo el código JavaScript válido también es válido en TypeScript. Esto facilita la transición gradual de un proyecto JavaScript existente a TypeScript.
 3. **Características de Última Generación de ECMAScript**:  
 TypeScript admite todas las características de JavaScript de última generación especificadas en ECMAScript, además de agregar características propias, como clases, interfaces, módulos y decoradores.
-4. Compilación y Transpilación:  
+4. **Compilación y Transpilación**:  
 El código TypeScript se compila a JavaScript estándar para ejecutarse en cualquier entorno JavaScript. Esta compilación se realiza a través de un proceso de transpilación, donde el código TypeScript es convertido a JavaScript.
+
+## Inferencia de datos
+
+Es una característica clave de TypeScript que permite al compilador deducir automáticamente el tipo de una variable basándose en su valor y en cómo se usa en el código. Esto elimina la necesidad de especificar explícitamente los tipos de datos en muchos casos, lo que hace que el código sea más conciso y fácil de mantener.
+
+La inferencia de tipos en TS ocurre en varias situaciones:
+1. **Asignación de valores iniciales**:
+```typescript
+let numero = 10; // TypeScript infiere que 'numero' es de tipo 'number'
+let texto = "Hola"; // TypeScript infiere que 'texto' es de tipo 'string'
+let esVerdadero = true; // TypeScript infiere que 'esVerdadero' es de tipo 'boolean'
+```
+
+2. **Inferencia de Tipos en Funciones**:
+```typescript
+function suma(a: number, b: number) {
+  return a + b; // TypeScript infiere que el tipo de retorno es 'number'
+}
+```
+
+3. **Arrays y Objetos literales**:
+```typescript
+let numeros = [1, 2, 3]; // TypeScript infiere que 'numeros' es de tipo 'number[]'
+let persona = { nombre: "Juan", edad: 30 }; // TypeScript infiere que 'persona' es de tipo '{ nombre: string, edad: number }'
+```
+
+4. **Contexto de uso**:
+```typescript
+let x = 10;
+let y = "Hola";
+
+x = y; // Error: Type 'string' is not assignable to type 'number'
+```
+En este caso, TypeScript deduce que x es de tipo number basándose en su valor inicial. Luego, al intentar asignarle un valor de tipo string (el tipo de y), TypeScript emite un error de tipo porque los tipos no coinciden.
+
+> [!WARNING]
+> No hay que fiarse de que en tiempo de ejecución TypeScript valide tipos, porque los ignora.
+
+### Beneficios de la inferencia de tipos
+
+- Reduce la necesidad de especificar tipos explícitamente, lo que hace que el código sea más conciso y legible.
+
+- Ayuda a detectar errores de tipo durante el desarrollo, ya que el compilador TypeScript puede identificar inconsistencias de tipos automáticamente.
+
+- Permite a los desarrolladores escribir código más rápido al eliminar la necesidad de escribir tipos redundantes.
 
 # Tipos de datos primitivos
 
@@ -118,7 +169,7 @@ console.log(person.age);  // 30
 ```
 
 > [!TIP]  
-> Además de definir objetos con propiedades específicas en una sola declaración, TypeScript también permite definir tipos de objetos personalizados utilizando **interfaces** o tipos:
+> Además de definir objetos con propiedades específicas en una sola declaración, TypeScript también permite definir tipos de objetos personalizados utilizando **interfaces o tipos**:
 > 
 > ```typescript
 > interface Person {
@@ -131,6 +182,228 @@ console.log(person.age);  // 30
 >     age: 30
 > };
 > ```
+
+## Declaración de tipos con `interface` y `type`
+
+En TypeScript tanto `type` como `interface` se utilizan para definir tipos de datos, pero tienen alguna diferencias clave en su funcionamiento y propósito.
+
+### `type`
+
+Se utiliza para crear alias de tipos, lo que significa que puedes darle un nombre a un tipo existente o combinar varios tipos en uno solo. Puedes usar `type` para definir tipos primitivos, tipos de objetos, tipos de funciones y combinaciones complejas de tipos:
+
+1. **Alias de Tipo para Tipos Primitivos**:
+
+```typescript
+type Edad = number;
+type Nombre = string;
+```
+
+2. **Alias de Tipo para Tipos de Datos Complejos**:
+
+```typescript
+type Coordenada = { x: number; y: number };
+type Empleado = { nombre: string; edad: number };
+```
+
+3. **Alias de Tipo para Uniones de Tipos**:
+
+```typescript
+type Resultado = number | string | boolean;
+
+// Incluso uniones de tipos con valores
+type Calificacion = number | 'No presentado'
+```
+
+4. **Alias de TIpo para intersecciones de Tipos**:
+
+```typescript
+type ConPersona = { persona: Persona };
+type ConEdad = { edad: number };
+
+type PersonaConEdad = ConPersona & ConEdad;
+```
+
+5. **Alias de Tipo para Tipos de Funciones**:
+
+```typescript
+type Suma = (a: number, b: number) => number;
+type Saludo = (nombre: string) => string;
+```
+
+6. **Alias de Tipo para TIpos Genéricos**:
+
+```typescript
+type Par<T> = [T, T];
+```
+
+7. **Alias de Tipo para Tipos de Array**:
+
+```typescript
+type Numeros = number[];
+```
+
+8. **Alias de Tipo para Tipos de Objetos Indexados**:
+
+```typescript
+type Indice = { [clave: string]: number };
+```
+
+9.  **Alias de Tipo para Tipos de Objeto Readonly**:
+
+```typescript
+type ReadonlyPersona = Readonly<Persona>;
+```
+
+10. **Alias de Tipo para Tipos de Objeto Pick y Omit**:
+
+```typescript
+type SoloNombre = Pick<Persona, 'nombre'>;
+type SinEdad = Omit<Persona, 'edad'>;
+```
+
+11. **Template Union Types**:
+
+```typescript
+type UUID = `${string}-${string}-${string}-${string}-${string}`
+```
+
+12. **Intersection Types**:
+
+```typescript
+interface BusinessPartner {
+  name: string;
+  credit: number;
+}
+
+interface Identity {
+  id: number;
+  name: string;
+}
+
+interface Contact {
+  email: string;
+  phone: string;
+}
+
+type Employee = Identity & Contact;
+type Customer = BusinessPartner & Contact;
+```
+
+13. **Type Indexing**:
+
+```typescript
+type Client = {
+  name: string,
+  address: {
+    street: string,
+    city: string,
+  }
+}
+
+// Type from value
+const addressClient: Client['address'] = {
+  street: 'Gran Vía',
+  city: 'Granada'
+}
+
+type Address = typeof addressClient
+const addressCeltiberian: Address = {
+  street: 'Avenida de la Innovación',
+  city: 'Granada'
+}
+```
+
+14. **Type from function return**:
+
+```typescript
+function createAddress() {
+  return {
+    street: 'Calle Gorrión',
+    city: 'Granada'
+  }
+}
+
+type Address = ReturnType<typeof createAddress>;
+```
+
+### `interface`
+
+En TypeScript, una `interface` es una forma de definir la estructura de un objeto, incluyendo los nombres de sus propiedades y los tipos de datos de esas propiedades. Proporciona una forma de definir contratos en tu código, especificando qué propiedades y métodos deben estar presentes en un objeto para cumplir con ciertas funcionalidades.
+
+Casos de Uso de Interfaces:
+
+1. **Definición de Estructuras de Datos**: Las interfaces se utilizan para definir la forma de los objetos y sus propiedades en TypeScript
+
+```typescript
+interface Producto {
+  id: number;
+  nombre: string;
+  precio: number;
+}
+```
+
+2. **Contratos de Clases**: Las interfaces se pueden utilizar para definir contratos que las clases deben cumplir.
+
+```typescript
+interface Figura {
+  calcularArea(): number;
+}
+
+class Rectangulo implements Figura {
+  // Implementación del método calcularArea()
+}
+
+class Circulo implements Figura {
+  // Implementación del método calcularArea()
+}
+
+```
+
+3. **Herencia de Interfaces**: Las interfaces pueden heredar propiedades y métodos de otras interfaces.
+
+```typescript
+interface Animal {
+  nombre: string;
+  hacerSonido(): void;
+}
+
+interface Perro extends Animal {
+  raza: string;
+}
+```
+
+4. **Objetos Anónimos y Tipos Genéricos**: Las interfaces se pueden utilizar para definir tipos de objetos anónimos o tipos genéricos.
+
+```typescript
+interface Respuesta<T> {
+  exito: boolean;
+  datos?: T;
+  mensaje?: string;
+}
+
+function procesarRespuesta(respuesta: Respuesta<string>) {
+  // Implementación de la función
+}
+```
+
+5. **Documentación y Contratos de API**: Las interfaces pueden utilizarse para documentar y definir los contratos de las APIs que deben cumplir los objetos
+
+```typescript
+interface Usuario {
+  id: number;
+  nombre: string;
+  correo: string;
+  telefono?: string;
+}
+```
+
+### Consideraciones para elegir entre `type` e `interface`
+
+- Si necesitas crear un alias de tipo o combinar varios tipos en uno solo, usa `type`.
+- Si necesitas definir la forma de un objeto y sus propiedades, usa `interface`.
+- Si necesitas extender o implementar otras estructuras de datos, como en el caso de la herencia, es más común utilizar `interface`.
+
+En general, la elección entre `type` e `interface` a menudo depende de las necesidades específicas del proyecto y de la preferencia del desarrollador. Ambos pueden ser útiles en diferentes contextos y se pueden utilizar juntos en un mismo proyecto cuando sea necesario.
 
 ## Arrays y Tuplas
 Son tipos especiales de objetos. Pueden contener cualquier tipo de datos. Se definen con `[]`
@@ -171,7 +444,6 @@ const numeros = [1, 2, 3, 4, 5];
 const duplicados = numeros.map(numero => numero * 2);
 
 console.log(duplicados); // Resultado: [2, 4, 6, 8, 10]
-
 ```
 
 #### Método `Array.filter`
@@ -184,7 +456,6 @@ const numeros = [1, 2, 3, 4, 5];
 const pares = numeros.filter(numero => numero % 2 === 0);
 
 console.log(pares); // Resultado: [2, 4]
-
 ```
 
 #### Método `Array.reduce`
@@ -197,7 +468,6 @@ const numeros = [1, 2, 3, 4, 5];
 const suma = numeros.reduce((acumulador, numero) => acumulador + numero, 0);
 
 console.log(suma); // Resultado: 15
-
 ```
 
 > [!NOTE]
@@ -218,15 +488,118 @@ En resumen, los arrays son colecciones dinámicas de elementos del mismo tipo, m
 # Funciones
 En TypeScript, las funciones son objetos de primer orden que pueden ser asignadas a variables, pasadas como argumentos a otras funciones y devueltas como valores desde otras funciones. Sin embargo, TypeScript agrega tipos estáticos para ayudar a detectar errores de tipo en tiempo de compilación.
 
-## Tipos de funciones
+## Tipar funciones
 
 En TypeScript, puedes definir los tipos de los parámetros y el tipo de retorno de una función:
+
 ```typescript
 function sumar(a: number, b: number): number {
   return a + b;
 }
 ```
-En este ejemplo, 'a' y 'b' son parámetros de tipo `number`, y el tipo de retorno de la función también es `number`.
+En este ejemplo, 'a' y 'b' son parámetros de tipo `number`, y el tipo de retorno de la función también es `number`.  
+
+---
+
+```typescript
+function saludar({name, age}) {
+  console.log(`Hola ${name}, tienes ${age} años`)
+}
+```
+Este ejemplo está mal, porque podemos pasarle esto como parámetro a la función y se lo tragaría:
+
+```typescript
+saludar({ name: 2, age: 'Pepe'})
+```
+
+Uno podría pensar que añadiendo tipos a los parámetros de la función esto se soluciona:
+
+```typescript
+function saludar({name: string, age: number}) {
+  console.log(`Hola ${name}, tienes ${age} años`)
+}
+```
+> [!CAUTION]
+> Esto está mal también, porque entra en colisión con la sintaxis de JavaScript, porque la sintaxis de JS te permite renombrar la propiedad de un objeto, y eso es lo que estaría pasando. `name` lo está transformando al nombre `string` y `age` al nombre `number`. 
+
+Para poder tipar correctamente esto hay dos formas:
+
+
+
+```typescript
+function saludar({ name, age }: {name: string, age: number}) {
+    console.log(`Hola ${name}, tienes ${age} años`)
+}
+```
+
+```typescript
+function saludar(persona: { name: string, age: number }) {
+    const {name, age} = persona
+    console.log(`Hola ${name}, tienes ${age} años`)
+}
+```
+---
+
+Otro ejemplo:
+
+```typescript
+const sayHiFromFunction = (fn) => {
+  fn('Miguel')
+}
+
+sayHiFromFunction((name) => {
+  console.log(`Hola ${name}`)
+})
+```
+
+Esto no sería correcto, tenemos que tipar:
+
+```typescript
+const sayHiFromFunction = (fn: Function) => {
+  fn('Miguel')
+}
+
+sayHiFromFunction((name: string) => {
+  console.log(`Hola ${name}`)
+})
+```
+
+> [!CAUTION]
+> Un error muy común es tipar las funciones como `Function`, porque podríamos escribir, por ejemplo, algo como esto:
+> ```typescript
+> sayHiFromFunction(Math.random())
+> ```
+> `Function` es el `any` de las funciones, esto hay que evitarlo siempre que podamos.
+
+Tenemos que decirle exactamente la función que necesitamos:
+
+```typescript
+const sayHiFromFunction = (fn: (name: string) => void) => {
+
+}
+
+const sayHi = (name: string) => {
+  console.log(`Hola ${name}`)
+}
+
+sayHiFromFunction(sayHi)
+```
+
+---
+
+Hay 2 formas de tipar **arrow functions**:
+
+```typescript
+const sumar = (a: number, b: number): number => {
+  return a + b
+}
+```
+
+```typescript
+const sumar: (a: number, b: number) => number = (a, b) => {
+  return a + b
+}
+```
 
 ## Declaración de funciones
 
